@@ -1,0 +1,24 @@
+name: newc
+version: 0.1.0
+dependencies:
+  readability:
+    github: joenas/readability.cr
+    version: 0.2.0
+  rss:
+    github: ruivieira/rss
+# authors:
+#   - name <email@example.com>
+
+# description: |
+#   Short description of newc
+
+# dependencies:
+#   pg:
+#     github: will/crystal-pg
+#     version: "~> 0.5"
+
+# development_dependencies:
+#   webmock:
+#     github: manastech/webmock.cr
+
+# license: MIT
