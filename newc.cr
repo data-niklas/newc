@@ -7,7 +7,6 @@ require "xml"
 require "file"
 require "dir"
 require "file_utils"
-require "./article.cr"
 require "rss"
 
 module RSS
