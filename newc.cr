@@ -38,9 +38,9 @@ class Newc
      <meta content="text/html; charset=UTF-8" http-equiv="content-type" />
      <style>
        :root{
-         --background-color: #FEFEFE;
-         --color: #232323;
-         --accent: #424242;
+         --background-color: {{{BackgroundColor}}};
+         --color: {{{Color}}};
+         --accent: {{{Accent}}};
          --font: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
        }
         blockquote{
@@ -261,7 +261,7 @@ TEMPLATE
         end
     end
 
-    def print_readable(format, url)
+    def print_readable(format, url, theme)
         response = HTTP::Client.get url
 
         if format == "readable"
@@ -295,7 +295,25 @@ TEMPLATE
             end
             puts xml
         elsif format == "page"
-            puts @@html_template.gsub("{{{Author}}}", res["author"]).gsub("{{{Title}}}", res["title"]).gsub("{{{Page}}}", res["content"])
+            filled_template = @@html_template.gsub("{{{Author}}}", res["author"]).gsub("{{{Title}}}", res["title"]).gsub("{{{Page}}}", res["content"])
+            case theme
+                when "light"
+                    background_color = "#FEFEFE"
+                    color = "#232323"
+                    accent = "#424242"
+                when "dark"
+                    background_color = "#232323"
+                    color = "#FEFEFE"
+                    accent = "#BABABA"
+                when "sepia"
+                    background_color = "#FFE0B2"
+                    color = "#232323"
+                    accent = "#424242"
+                else 
+                    puts "Theme needs to be one of: 'light', 'dark' or 'sepia'"
+                    exit
+            end
+            puts filled_template.gsub("{{{BackgroundColor}}}", background_color).gsub("{{{Color}}}", color).gsub("{{{Accent}}}", accent)
         elsif format == "readable"
             puts res["title"], res["author"], "----------------------------", res["content"].split(/\.(?=\S{3,})/).join(".\n\n")
         end
@@ -321,6 +339,7 @@ output_format = "json"
 settings_dir = Path["~/.local/share/newc"].expand(home: true)
 force = false
 newc : Newc
+page_theme = ""
 
 OptionParser.parse do |parser|
 
@@ -349,8 +368,9 @@ OptionParser.parse do |parser|
         output_format = "xml"
     end
 
-    parser.on "-p", "--page", "Page (HTML) output format" do
+    parser.on "-p", "--page=THEME", "Page (HTML) output format" do |theme|
         output_format = "page"
+        page_theme = theme || "light"
     end
 
     parser.on "-r", "--readable", "Readable output format" do
@@ -369,7 +389,7 @@ OptionParser.parse do |parser|
                     newc.print_feed(output_format, force)
                 when "readability"
                     if args_arr.size == 2
-                        newc.print_readable(output_format, args_arr[1])
+                        newc.print_readable(output_format, args_arr[1], page_theme)
                     else
                         puts "Needs one URL as a second parameter"
                         show_help.call
